@@ -9,7 +9,6 @@ class Node:
 
 import sys
 
-
 error = False
 next_token = '%'
 input_stream = []
@@ -41,7 +40,11 @@ def evaluate(tree):
     elif tree.symbol == '*':
         return evaluate(tree.leftChild) * evaluate(tree.rightChild)
     elif tree.symbol == '/':
-        return evaluate(tree.leftChild) / evaluate(tree.rightChild)
+        try:
+            return evaluate(tree.leftChild) / evaluate(tree.rightChild)
+        except ZeroDivisionError:
+            print("Error: Division by zero")
+            return None
     elif tree.symbol == 'a':
         return 10
     elif tree.symbol == 'b':
@@ -140,7 +143,7 @@ def F():
             return None
     elif next_token in 'abcd':
         return M()
-    elif next_token in '0123':
+    elif next_token in '0123456789':
         return N()
     else:
         error = True
@@ -165,16 +168,21 @@ def N():
     return Node(symbol)
 
 def main():
+    global error
     global input_stream
     with open('expression.txt', 'r') as file:
-        input_stream = list(file.read().strip())
-    theTree = G()
-    if not error:
-        print("\nPostfix notation of the tree:")
-        printTree(theTree)
-        print("\nThe evaluated value is:", evaluate(theTree))
-    else:
-        print("Input not parsed correctly")
+        for line in file:
+            print("\nEvaluating: " + line.strip())
+            input_stream = list(line.strip())
+            theTree = G()
+            if not error:
+                print("Postfix notation of the tree:")
+                printTree(theTree)
+                print("\nThe evaluated value is:", evaluate(theTree))
+            else:
+                print("Input not parsed correctly")
+            input_stream = []
+            error = False
 
 if __name__ == "__main__":
     main()
